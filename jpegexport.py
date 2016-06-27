@@ -40,6 +40,7 @@ class JPEGExport(inkex.Effect):
         self.OptionParser.add_option("--density", action="store", type="int",     dest="density", default="90",      help="")
         self.OptionParser.add_option("--page",    action="store", type="inkbool", dest="page",    default=False,     help="")
         self.OptionParser.add_option("--fast",    action="store", type="inkbool", dest="fast",    default=True,      help="")
+        self.OptionParser.add_option("--ftype",   action="store", type="string",  dest="ftype",   default="jpg",     help="")
 
     def effect(self):
         """get selected item coords and call command line command to export as a png"""
@@ -58,6 +59,21 @@ class JPEGExport(inkex.Effect):
         if not os.path.exists(os.path.dirname(self.options.path)):
             inkex.errormsg(_('The directory "%s" does not exist.') % os.path.dirname(self.options.path))
             exit()
+            
+        # Test if installed version of imagemagick supports webp format,
+        # for Ubuntu see https://bugs.launchpad.net/ubuntu/+source/imagemagick/+bug/1117481
+        command = "convert -list format"
+        
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return_code = p.wait()
+        f = p.stdout
+        err = p.stderr
+        
+        out = p.communicate()[0]
+        
+        found = out.find('WEBP')
+        if found == -1:
+            inkex.errormsg(_('The version of imagemagick that is installed on your computer does not support exporting to the webp file format. Please update your imagemagick version!'))
 
         outfile=self.options.path
         curfile = self.args[-1]
@@ -133,30 +149,52 @@ class JPEGExport(inkex.Effect):
 
     def exportArea(self, x0, y0, x1, y1, curfile, outfile, bgcol):
         tmp = self.getTmpPath()
-        command="inkscape -a %s:%s:%s:%s -d %s -e \"%sjpinkexp.png\" -b \"%s\" %s" % (x0, y0, x1, y1, self.options.density, tmp, bgcol, curfile)
+        if self.options.ftype == "jpg":
+            command="inkscape -a %s:%s:%s:%s -d %s -e \"%sjpinkexp.png\" -b \"%s\" %s" % (x0, y0, x1, y1, self.options.density, tmp, bgcol, curfile)
+        elif self.options.ftype == "webp":
+          # no background color
+            command="inkscape -a %s:%s:%s:%s -d %s -e \"%sjpinkexp.png\" %s" % (x0, y0, x1, y1, self.options.density, tmp, curfile)
 
         p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return_code = p.wait()
         f = p.stdout
         err = p.stderr
 
-        self.tojpeg(outfile)
+        self.export(outfile)
 
     def exportPage(self, curfile, outfile, bgcol):
         tmp = self.getTmpPath()
-        command = "inkscape -C -d %s -e \"%sjpinkexp.png\" -b\"%s\" %s" % (self.options.density, tmp,bgcol, curfile)
-
+        if self.options.ftype == "jpg":
+            command = "inkscape -C -d %s -e \"%sjpinkexp.png\" -b\"%s\" %s" % (self.options.density, tmp, bgcol, curfile)
+        elif self.options.ftype == "webp":
+            # no background color
+            command = "inkscape -C -d %s -e \"%sjpinkexp.png\" %s" % (self.options.density, tmp, curfile)
+        
         p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return_code = p.wait()
         f = p.stdout
         err = p.stderr
 
-        self.tojpeg(outfile)
+        self.export(outfile)
+
+    def export(self, outfile):
+        if self.options.ftype == "jpg":
+            self.tojpeg(outfile)
+        elif self.options.ftype == "webp":
+            self.towebp(outfile)
 
 
     def tojpeg(self,outfile):
         tmp = self.getTmpPath()
         command = "convert -quality %s -density %s %sjpinkexp.png %s" % (self.options.quality, self.options.density, tmp, outfile)
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return_code = p.wait()
+        f = p.stdout
+        err = p.stderr
+
+    def towebp(self, outfile):
+        tmp = self.getTmpPath()
+        command = "convert %sjpinkexp.png -define webp:lossless=true %s" % (tmp, outfile)
         p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return_code = p.wait()
         f = p.stdout
