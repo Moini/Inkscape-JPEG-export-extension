@@ -7,9 +7,9 @@
     <param name="page" type="boolean" _gui-text="Export whole page"  _gui-description="If checked, the whole page will be exported, else the selection.">false</param>
     <param name="fast" type="boolean" _gui-text="Fast export (suggested)" _gui-description="Will use an approximate bounding box. If unchecked, export will take longer.">true</param>
     
-    <param name="ftype" type="optiongroup" _gui-text="Select export format: ">
-      <_option value="jpg" _gui-description="Export to JPEG image format.">JPEG</option>
-      <_option value="webp" _gui-description="Export to lossless webp image format.">webp</option>
+    <param name="ftype" type="optiongroup" _gui-text="Export Format: ">
+      <_option value="jpg">JPEG</option>
+      <_option value="webp">WEBP</option>
     </param>
     
     <_param name="jpegoptions" type="description" appearance="header">JPEG Options</_param>
