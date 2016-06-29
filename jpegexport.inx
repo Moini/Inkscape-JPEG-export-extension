@@ -8,8 +8,8 @@
     <param name="fast" type="boolean" _gui-text="Fast export (suggested)" _gui-description="Will use an approximate bounding box. If unchecked, export will take longer.">true</param>
     
     <param name="ftype" type="optiongroup" _gui-text="Export Format: ">
-      <_option value="jpg">JPEG</option>
-      <_option value="webp">WEBP</option>
+      <_option value="jpg">JPEG</_option>
+      <_option value="webp">WEBP</_option>
     </param>
     
     <_param name="jpegoptions" type="description" appearance="header">JPEG Options</_param>
