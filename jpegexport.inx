@@ -2,29 +2,29 @@
     <_name>JPEG Export</_name>
     <id>id.giac.export.jpg</id>
     <dependency type="executable" location="extensions">jpegexport.py</dependency>
+    <param name="ftype" type="optiongroup" _gui-text="Export Format: ">
+      <_option value="jpg" _gui-description="Export to JPEG image format.">JPEG</_option>
+      <_option value="webp" _gui-description="Export to WEBP image format.">WEBP</_option>
+    </param>
     <param name="path" type="string" _gui-text="Export path" _gui-description="Full path to your file, e.g. 'C:\Users\User_Name\Documents\myimage.jpg or /tmp/myimage.webp'"></param>
     <param name="density" type="int" min="30" max="2400" _gui-text="Resolution (ppi)" _gui-description="Recommended: 90 (screens) or 300 (print)">90</param>
     <param name="page" type="boolean" _gui-text="Export whole page"  _gui-description="If checked, the whole page will be exported, else the selection.">false</param>
     <param name="fast" type="boolean" _gui-text="Fast export (suggested)" _gui-description="Will use an approximate bounding box. If unchecked, export will take longer.">true</param>
-    
-    <param name="ftype" type="optiongroup" _gui-text="Export Format: ">
-      <_option value="jpg">JPEG</_option>
-      <_option value="webp">WEBP</_option>
-    </param>
-    
-    <_param name="jpegoptions" type="description" appearance="header">JPEG Options</_param>
-    <param name="bgcol" type="string" _gui-text="Background color (leave blank for white)" _gui-description="Background color hex code, e.g. '#abc123'"></param>
     <param name="quality" type="int" min="0" max="100" _gui-text="Quality %" _gui-description="JPG compression quality">100</param>
     
+    <param name="bgcol" type="string" _gui-text="Background color for JPEG (leave blank for white)" _gui-description="Background color hex code, e.g. '#abc123'"></param>
+    
     <_param name="usage" type="description" appearance="header">Usage</_param>
-    <param name="help" type="description" xml:space="preserve">Select the objects in the drawing that you wish to export, or make a check at "Export whole page".
+    <_param name="help" type="description" xml:space="preserve">Select the objects in the drawing that you wish to export, or make a check at "Export whole page".
+    
+Select the file format you would like to export to (JPEG or WEBP).
+    
+Enter a name for your JPG or WEBP file (with full path) and choose a background color for the exported image if exporting to JPG (JPG format does not support transparency). 
       
-Enter a name for your JPG or webp file (with full path) and choose a background color for the exported image if exporting to JPG (JPG format does not support transparency). 
-      
-Leave background color field blank for white.
+Leave background color field blank for white JPEG background. This option will be ignored for WEBP export.
 
-This extension requires that imagemagick is installed, more info and download at http://www.imagemagick.org.
-Webp export will only work if the installed version of imagemagick supports webp export.</param>
+This extension requires that Imagemagick is installed. More info and download at http://www.imagemagick.org.
+WEBP export will only work if the installed version of imagemagick supports WEBP export.</_param>
     <effect needs-live-preview="false">
         <object-type>all</object-type>
         <effects-menu>
