@@ -13,8 +13,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Author: Giacomo Mirabassi <giacomo@mirabassi.it>
-# Version: 0.2
+# Authors: Giacomo Mirabassi <giacomo@mirabassi.it>, Maren Hachmann <marenhachmann@yahoo.com>
+# Version: 0.3
 
 import sys
 import os
@@ -36,7 +36,7 @@ class JPEGExport(inkex.Effect):
 
         self.OptionParser.add_option("--path",    action="store", type="string",  dest="path",    default="",        help="")
         self.OptionParser.add_option("--bgcol",   action="store", type="string",  dest="bgcol",   default="#ffffff", help="")
-        self.OptionParser.add_option("--quality", action="store", type="int",     dest="quality", default="90",      help="")
+        self.OptionParser.add_option("--quality", action="store", type="int",     dest="quality", default="100",     help="")
         self.OptionParser.add_option("--density", action="store", type="int",     dest="density", default="90",      help="")
         self.OptionParser.add_option("--page",    action="store", type="inkbool", dest="page",    default=False,     help="")
         self.OptionParser.add_option("--fast",    action="store", type="inkbool", dest="fast",    default=True,      help="")
@@ -45,43 +45,57 @@ class JPEGExport(inkex.Effect):
     def effect(self):
         """get selected item coords and call command line command to export as a png"""
         # The user must supply a directory to export:
+        
         if not self.options.path:
             inkex.errormsg(_('Please indicate a file name and path to export the jpg.'))
             exit()
-        if not os.path.basename(self.options.path):
+        
+        outfile = self.options.path
+        path, filename = os.path.split(outfile)  
+        if not filename:
             inkex.errormsg(_('Please indicate a file name.'))
             exit()
-        if not os.path.dirname(self.options.path):
+        if not path or path == "/":
             inkex.errormsg(_('Please indicate a directory other than your system\'s base directory.'))
             exit()
-          
         # Test if the directory exists:
-        if not os.path.exists(os.path.dirname(self.options.path)):
-            inkex.errormsg(_('The directory "%s" does not exist.') % os.path.dirname(self.options.path))
+        if not os.path.isdir(path):
+            inkex.errormsg(_('The directory \"%s\" does not exist. Please enter a valid path to your file.') % path)
             exit()
             
-        # Test if installed version of imagemagick supports webp format,
-        # for Ubuntu see https://bugs.launchpad.net/ubuntu/+source/imagemagick/+bug/1117481
-        command = "convert -list format"
-        
-        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return_code = p.wait()
-        f = p.stdout
-        err = p.stderr
-        
-        out = p.communicate()[0]
-        
-        found = out.find('WEBP')
-        if found == -1:
-            inkex.errormsg(_('The version of imagemagick that is installed on your computer does not support exporting to the webp file format. Please update your imagemagick version!'))
+        # check if selected file extension matches selected export format
+        basename, ext = os.path.splitext(filename)
+        if self.options.ftype == "jpg":
+            if ext.lower() not in ['.jpg', '.jpeg']:
+                inkex.errormsg(_('The extension \"%s\" is not a valid extension for JPEG files.' % ext))
+                exit()
+        elif self.options.ftype == "webp":
+            if ext.lower() != '.webp':
+                inkex.errormsg(_('The extension \"%s\" is not a valid extension for WEBP files.' % ext))
+                exit()
+            
+            # Test if installed version of imagemagick supports webp format,
+            # for Ubuntu see https://bugs.launchpad.net/ubuntu/+source/imagemagick/+bug/1117481
+            command = "convert -list format"
+            
+            p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            return_code = p.wait()
+            f = p.stdout
+            err = p.stderr
+            
+            out = p.communicate()[0]
+            
+            found = out.find('WEBP')
+            if found == -1:
+                inkex.errormsg(_('The version of imagemagick that is installed on your computer does not support exporting to the webp file format. Please update your imagemagick version!'))
+                exit()
 
-        outfile=self.options.path
         curfile = self.args[-1]
         
         # Test if color is valid
         _rgbhexstring = re.compile(r'#[a-fA-F0-9]{6}$')
         if not _rgbhexstring.match(self.options.bgcol):
-            inkex.errormsg(_('Please indicate the background color like this: \"#abc123\" or leave the field empty for white.'))
+            inkex.errormsg(_('Please indicate the background color for JPEG like this: \"#abc123\" or leave the field empty for white.'))
             exit()
 
         bgcol = self.options.bgcol
@@ -194,7 +208,7 @@ class JPEGExport(inkex.Effect):
 
     def towebp(self, outfile):
         tmp = self.getTmpPath()
-        command = "convert %sjpinkexp.png -define webp:lossless=true %s" % (tmp, outfile)
+        command = "convert %sjpinkexp.png -quality %s -define webp:lossless=true %s" % (tmp, self.options.quality, outfile)
         p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return_code = p.wait()
         f = p.stdout
