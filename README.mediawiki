@@ -23,11 +23,14 @@ The extension can be found in the ''extensions'' menu under the ''Export as JPG'
 
 ====Options====
 
-* '''Export path''': write here the full path and file name of the resulting image
-* '''Background color''': Since jpg does not support transparencies, the image will have a background color. Default is white, if you want to change it insert in this field the desired color in rgb html notation (e.g. #000000 for black).
+* '''Export Format''': Select if you want to use JPG or WEBP export format. If you choose WEBP, the JPG export option "background color" will be ignored (and the WEBP image will be exported with transparency, but only if your version of imagemagick supports WEBP).
+* '''Export path''': Enter the full path and file name of the resulting image here.
+* '''Resolution''': Set the resolution of the exported image in dots per inch (dpi).
 * '''Export whole page''': check this if you want to export the whole page instead of a selection. 
 * '''Fast export''': Use the fast or the normal export mode (see above for details). It is recommended to always check this box unless you are using masks or clips. This option is useless if you are exporting the whole page.
-* '''Export Format''': Select if you want to use JPG or WEBP export format. If you choose WEBP, the JPG export options (background color, quality) will be ignored, and a lossless WEBP image will be exported (with transparency, but only if your version of imagemagick supports webp).
+* '''Quality''': Enter a value between 0 and 100 to determine the quality of the output image. Setting the quality to 100 results in a lossless export, values smaller than 100 may result in compression artifacts, but will yield smaller file sizes.
+* '''Background color''': Since JPG does not support transparency, the image will need a background color. Default is white; if you want to change it, enter the desired color in rgb html notation (e.g. #000000 for black) in this field.
+
 
 ===Other languages===
 
